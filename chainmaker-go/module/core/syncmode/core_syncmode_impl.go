@@ -77,7 +77,6 @@ func NewCoreEngine(cf *conf.CoreEngineConfig) (*CoreEngine, error) {
 		AC:              cf.AC,
 		BlockchainStore: cf.BlockchainStore,
 		StoreHelper:     cf.StoreHelper,
-		TxFilter:        cf.TxFilter,
 	}
 	core.blockProposer, err = proposer.NewBlockProposer(proposerConfig, cf.Log)
 	if err != nil {
@@ -98,7 +97,6 @@ func NewCoreEngine(cf *conf.CoreEngineConfig) (*CoreEngine, error) {
 		TxPool:          cf.TxPool,
 		VmMgr:           cf.VmMgr,
 		StoreHelper:     cf.StoreHelper,
-		TxFilter:        cf.TxFilter,
 	}
 	core.BlockVerifier, err = verifier.NewBlockVerifier(verifierConfig, cf.Log)
 	if err != nil {
@@ -118,12 +116,12 @@ func NewCoreEngine(cf *conf.CoreEngineConfig) (*CoreEngine, error) {
 		Subscriber:      cf.Subscriber,
 		Verifier:        core.BlockVerifier,
 		StoreHelper:     cf.StoreHelper,
-		TxFilter:        cf.TxFilter,
 	}
 	core.BlockCommitter, err = common.NewBlockCommitter(committerConfig, cf.Log)
 	if err != nil {
 		return nil, err
 	}
+
 	return core, nil
 }
 

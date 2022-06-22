@@ -11,14 +11,12 @@ import (
 	"fmt"
 	"sync"
 
-	sdkutils "chainmaker.org/chainmaker/sdk-go/v2/utils"
-	"chainmaker.org/chainmaker/utils/v2"
-
 	ethabi "github.com/ethereum/go-ethereum/accounts/abi"
 
 	"chainmaker.org/chainmaker-go/tools/cmc/util"
 	sdkPbCommon "chainmaker.org/chainmaker/pb-go/v2/common"
 	sdk "chainmaker.org/chainmaker/sdk-go/v2"
+	sdkutils "chainmaker.org/chainmaker/sdk-go/v2/utils"
 )
 
 func Dispatch(client *sdk.ChainClient, contractName, method string, kvs []*sdkPbCommon.KeyValuePair,
@@ -55,12 +53,7 @@ func runInvokeContract(client *sdk.ChainClient, contractName, method string, kvs
 	}()
 
 	for i := 0; i < totalCntPerGoroutine; i++ {
-		if client.IsEnableNormalKey() {
-			txId = utils.GetRandTxId()
-		} else {
-			txId = utils.GetTimestampTxId()
-		}
-
+		txId := sdkutils.GetRandTxId()
 		resp, err := client.InvokeContractWithLimit(contractName, method, txId, kvs, timeout, syncResult, limit)
 		if err != nil {
 			fmt.Printf("[ERROR] invoke contract failed, %s", err.Error())
@@ -93,34 +86,8 @@ func runInvokeContractOnce(client *sdk.ChainClient, contractName, method string,
 		wg.Done()
 	}()
 
-	txId := sdkutils.GetTimestampTxId()
+	txId := sdkutils.GetRandTxId()
 	resp, err := client.InvokeContract(contractName, method, txId, kvs, timeout, syncResult)
-	if err != nil {
-		fmt.Printf("[ERROR] invoke contract failed, %s", err.Error())
-		return
-	}
-
-	if resp.Code != sdkPbCommon.TxStatusCode_SUCCESS {
-		fmt.Printf("[ERROR] invoke contract failed, [code:%d]/[msg:%s]/[txId:%s]\n", resp.Code, resp.Message, txId)
-		return
-	}
-
-	if evmMethod != nil && resp.ContractResult != nil {
-		output, err := util.DecodeOutputs(evmMethod, resp.ContractResult.Result)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		resp.ContractResult.Result = []byte(fmt.Sprintf("%v", output))
-	}
-
-	fmt.Printf("INVOKE contract resp, [code:%d]/[msg:%s]/[contractResult:%+v]/[txId:%s]\n", resp.Code, resp.Message,
-		resp.ContractResult, txId)
-}
-
-func invokeContract(client *sdk.ChainClient, contractName, method, txId string, kvs []*sdkPbCommon.KeyValuePair,
-	evmMethod *ethabi.Method, limit *sdkPbCommon.Limit) {
-	resp, err := client.InvokeContractWithLimit(contractName, method, txId, kvs, timeout, syncResult, limit)
 	if err != nil {
 		fmt.Printf("[ERROR] invoke contract failed, %s", err.Error())
 		return

@@ -7,7 +7,7 @@ RUN cd /chainmaker-go && make
 # the second stage
 FROM ubuntu:20.04
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-RUN apt-get update && apt-get install -y vim net-tools tree gcc g++ p7zip-full
+RUN apt-get update && apt-get install -y vim net-tools tree gcc g++
 ENV TZ "Asia/Shanghai"
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata && \
     echo $TZ > /etc/timezone && \

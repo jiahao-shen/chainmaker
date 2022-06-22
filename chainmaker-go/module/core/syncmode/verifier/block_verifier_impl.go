@@ -45,7 +45,6 @@ type BlockVerifierImpl struct {
 	ac             protocol.AccessControlProvider // access control manager
 	log            protocol.Logger                // logger
 	txPool         protocol.TxPool                // tx pool to check if tx is duplicate
-	txFilter       protocol.TxFilter              // tx pool to check if tx is duplicate
 	//mu             sync.Mutex                     // to avoid concurrent map modify
 	verifierBlock *common.VerifierBlock
 	storeHelper   conf.StoreHelper
@@ -66,7 +65,6 @@ type BlockVerifierConfig struct {
 	TxPool          protocol.TxPool
 	VmMgr           protocol.VmManager
 	StoreHelper     conf.StoreHelper
-	TxFilter        protocol.TxFilter
 }
 
 func NewBlockVerifier(config BlockVerifierConfig, log protocol.Logger) (protocol.BlockVerifier, error) {
@@ -86,7 +84,6 @@ func NewBlockVerifier(config BlockVerifierConfig, log protocol.Logger) (protocol
 		log:           log,
 		txPool:        config.TxPool,
 		storeHelper:   config.StoreHelper,
-		txFilter:      config.TxFilter,
 	}
 
 	conf := &common.VerifierBlockConf{
@@ -101,7 +98,6 @@ func NewBlockVerifier(config BlockVerifierConfig, log protocol.Logger) (protocol
 		ProposalCache:   config.ProposedCache,
 		StoreHelper:     config.StoreHelper,
 		TxScheduler:     config.TxScheduler,
-		TxFilter:        config.TxFilter,
 	}
 	v.verifierBlock = common.NewVerifierBlock(conf)
 
@@ -191,7 +187,7 @@ func (v *BlockVerifierImpl) VerifyBlock(block *commonpb.Block, mode protocol.Ver
 	}
 	lastPool := utils.CurrentTimeMillisSeconds() - startPoolTick
 
-	txRWSetMap, contractEventMap, timeLasts, err := v.validateBlock(newBlock, lastBlock, mode)
+	txRWSetMap, contractEventMap, timeLasts, err := v.validateBlock(newBlock, lastBlock)
 	if err != nil {
 		v.log.Warnf("verify failed [%d](%x),preBlockHash:%x, %s",
 			newBlock.Header.BlockHeight, newBlock.Header.BlockHash, newBlock.Header.PreBlockHash, err.Error())
@@ -291,7 +287,7 @@ func (v *BlockVerifierImpl) VerifyBlockWithRwSets(block *commonpb.Block,
 		return err
 	}
 	lastPool := utils.CurrentTimeMillisSeconds() - startPoolTick
-	contractEventMap, timeLasts, err := v.validateBlockWithRWSets(newBlock, lastBlock, mode, txRWSetMap)
+	contractEventMap, timeLasts, err := v.validateBlockWithRWSets(newBlock, lastBlock, txRWSetMap)
 	if err != nil {
 		v.log.Warnf("verify failed [%d](%x),preBlockHash:%x, %s",
 			newBlock.Header.BlockHeight, newBlock.Header.BlockHash, newBlock.Header.PreBlockHash, err.Error())
@@ -354,11 +350,12 @@ func (v *BlockVerifierImpl) Watch(chainConfig *chainConfConfig.ChainConfig) erro
 	if chainConfig.Block.TxParameterSize <= 0 {
 		protocol.ParametersValueMaxLength = protocol.DefaultParametersValueMaxSize * 1024 * 1024
 	}
+
 	v.log.Infof("update chainconf,blockverify[%v]", v.chainConf.ChainConfig().Block)
 	return nil
 }
 
-func (v *BlockVerifierImpl) validateBlock(block, lastBlock *commonpb.Block, mode protocol.VerifyMode) (
+func (v *BlockVerifierImpl) validateBlock(block, lastBlock *commonpb.Block) (
 	map[string]*commonpb.TxRWSet, map[string][]*commonpb.ContractEvent, map[string]int64, error) {
 	hashType := v.chainConf.ChainConfig().Crypto.Hash
 	timeLasts := make(map[string]int64)
@@ -381,10 +378,10 @@ func (v *BlockVerifierImpl) validateBlock(block, lastBlock *commonpb.Block, mode
 		return nil, nil, timeLasts, err
 	}
 
-	return v.verifierBlock.ValidateBlock(block, lastBlock, hashType, timeLasts, mode)
+	return v.verifierBlock.ValidateBlock(block, lastBlock, hashType, timeLasts)
 }
 
-func (v *BlockVerifierImpl) validateBlockWithRWSets(block, lastBlock *commonpb.Block, mode protocol.VerifyMode,
+func (v *BlockVerifierImpl) validateBlockWithRWSets(block, lastBlock *commonpb.Block,
 	txRWSetMap map[string]*commonpb.TxRWSet) (
 	map[string][]*commonpb.ContractEvent, map[string]int64, error) {
 	hashType := v.chainConf.ChainConfig().Crypto.Hash
@@ -408,7 +405,7 @@ func (v *BlockVerifierImpl) validateBlockWithRWSets(block, lastBlock *commonpb.B
 		return nil, timeLasts, err
 	}
 
-	return v.verifierBlock.ValidateBlockWithRWSets(block, lastBlock, hashType, timeLasts, txRWSetMap, mode)
+	return v.verifierBlock.ValidateBlockWithRWSets(block, lastBlock, hashType, timeLasts, txRWSetMap)
 }
 
 func (v *BlockVerifierImpl) verifyVoteSig(block *commonpb.Block) error {

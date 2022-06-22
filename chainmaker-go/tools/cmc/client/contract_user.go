@@ -76,7 +76,7 @@ func createUserContractCMD() *cobra.Command {
 	attachFlags(cmd, []string{
 		flagUserTlsKeyFilePath, flagUserTlsCrtFilePath, flagUserSignKeyFilePath, flagUserSignCrtFilePath,
 		flagSdkConfPath, flagContractName, flagVersion, flagByteCodePath, flagOrgId, flagChainId, flagSendTimes,
-		flagRuntimeType, flagTimeout, flagParams, flagSyncResult, flagEnableCertHash, flagAbiFilePath,
+		flagRuntimeType, flagTimeout, flagParams, flagSyncResult, flagEnableCertHash,
 		flagAdminKeyFilePaths, flagAdminCrtFilePaths, flagAdminOrgIds, flagGasLimit,
 	})
 
@@ -103,7 +103,7 @@ func invokeUserContractCMD() *cobra.Command {
 		flagUserSignKeyFilePath, flagUserSignCrtFilePath, flagUserTlsKeyFilePath, flagUserTlsCrtFilePath,
 		flagConcurrency, flagTotalCountPerGoroutine, flagSdkConfPath, flagOrgId, flagChainId, flagSendTimes,
 		flagEnableCertHash, flagContractName, flagMethod, flagParams, flagTimeout, flagSyncResult, flagAbiFilePath,
-		flagGasLimit, flagTxId,
+		flagGasLimit,
 	})
 
 	cmd.MarkFlagRequired(flagSdkConfPath)
@@ -304,33 +304,7 @@ func createUserContract() error {
 			}
 			kvs = util.ConvertParameters(kvsMap)
 		}
-	} else { // EVM contract deploy
-		if abiFilePath == "" {
-			return errors.New("required abi file path when deploy EVM contract")
-		}
-		abiBytes, err := ioutil.ReadFile(abiFilePath)
-		if err != nil {
-			return err
-		}
-
-		contractAbi, err := ethabi.JSON(bytes.NewReader(abiBytes))
-		if err != nil {
-			return err
-		}
-
-		inputData, err := util.Pack(&contractAbi.Constructor, params)
-		if err != nil {
-			return err
-		}
-
-		inputDataHexStr := hex.EncodeToString(inputData)
-		kvs = []*common.KeyValuePair{
-			{
-				Key:   "data",
-				Value: []byte(inputDataHexStr),
-			},
-		}
-
+	} else {
 		byteCode, err := ioutil.ReadFile(byteCodePath)
 		if err != nil {
 			return err
@@ -471,11 +445,7 @@ func invokeUserContract() error {
 		limit = &common.Limit{GasLimit: gasLimit}
 	}
 
-	if txId != "" {
-		invokeContract(cc, contractName, method, txId, kvs, evmMethod, limit)
-	} else {
-		Dispatch(cc, contractName, method, kvs, evmMethod, limit)
-	}
+	Dispatch(cc, contractName, method, kvs, evmMethod, limit)
 	return nil
 }
 

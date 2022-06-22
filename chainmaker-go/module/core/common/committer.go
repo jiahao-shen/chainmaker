@@ -8,8 +8,6 @@ package common
 import (
 	"fmt"
 
-	"chainmaker.org/chainmaker/pb-go/v2/config"
-
 	"chainmaker.org/chainmaker/common/v2/msgbus"
 	"chainmaker.org/chainmaker/localconf/v2"
 	commonpb "chainmaker.org/chainmaker/pb-go/v2/common"
@@ -25,7 +23,6 @@ type CommitBlock struct {
 	snapshotManager         protocol.SnapshotManager
 	ledgerCache             protocol.LedgerCache
 	chainConf               protocol.ChainConf
-	txFilter                protocol.TxFilter
 	msgBus                  msgbus.MessageBus
 	metricBlockSize         *prometheus.HistogramVec // metric block size
 	metricBlockCounter      *prometheus.CounterVec   // metric block counter
@@ -42,7 +39,6 @@ type CommitBlockConf struct {
 	TxPool                  protocol.TxPool
 	LedgerCache             protocol.LedgerCache
 	ChainConf               protocol.ChainConf
-	TxFilter                protocol.TxFilter
 	MsgBus                  msgbus.MessageBus
 	MetricBlockSize         *prometheus.HistogramVec // metric block size
 	MetricBlockCounter      *prometheus.CounterVec   // metric block counter
@@ -55,7 +51,6 @@ type CommitBlockConf struct {
 func NewCommitBlock(cbConf *CommitBlockConf) *CommitBlock {
 	commitBlock := &CommitBlock{
 		store:           cbConf.Store,
-		txFilter:        cbConf.TxFilter,
 		log:             cbConf.Log,
 		snapshotManager: cbConf.SnapshotManager,
 		ledgerCache:     cbConf.LedgerCache,
@@ -78,7 +73,7 @@ func (cb *CommitBlock) CommitBlock(
 	block *commonpb.Block,
 	rwSetMap map[string]*commonpb.TxRWSet,
 	conEventMap map[string][]*commonpb.ContractEvent) (
-	dbLasts, snapshotLasts, confLasts, otherLasts, pubEvent, filterLasts int64, blockInfo *commonpb.BlockInfo, err error) {
+	dbLasts, snapshotLasts, confLasts, otherLasts, pubEvent int64, blockInfo *commonpb.BlockInfo, err error) {
 	// record block
 	rwSet := RearrangeRWSet(block, rwSetMap)
 	// record contract event
@@ -92,33 +87,20 @@ func (cb *CommitBlock) CommitBlock(
 	}
 	dbLasts = utils.CurrentTimeMillisSeconds() - startDBTick
 
-	// TxFilter adds
-	filterLasts = utils.CurrentTimeMillisSeconds()
-	// The default filter type does not run AddsAndSetHeight
-	if localconf.ChainMakerConfig.TxFilter.Type != int32(config.TxFilterType_None) {
-		err = cb.txFilter.AddsAndSetHeight(utils.GetTxIds(block.Txs), block.Header.GetBlockHeight())
-		if err != nil {
-			// if add filter error, then panic
-			cb.log.Error(err)
-			panic(err)
-		}
-	}
-	filterLasts = utils.CurrentTimeMillisSeconds() - filterLasts
-
 	// clear snapshot
 	startSnapshotTick := utils.CurrentTimeMillisSeconds()
 	if err = cb.snapshotManager.NotifyBlockCommitted(block); err != nil {
 		err = fmt.Errorf("notify snapshot error [%d](hash:%x)",
 			block.Header.BlockHeight, block.Header.BlockHash)
 		cb.log.Error(err)
-		return 0, 0, 0, 0, 0, 0, nil, err
+		return 0, 0, 0, 0, 0, nil, err
 	}
 	snapshotLasts = utils.CurrentTimeMillisSeconds() - startSnapshotTick
 
 	// notify chainConf to update config when config block committed
 	startConfTick := utils.CurrentTimeMillisSeconds()
 	if err = NotifyChainConf(block, cb.chainConf); err != nil {
-		return 0, 0, 0, 0, 0, 0, nil, err
+		return 0, 0, 0, 0, 0, nil, err
 	}
 
 	cb.ledgerCache.SetLastCommittedBlock(block)
@@ -154,23 +136,28 @@ func (cb *CommitBlock) CommitBlock(
 		Block:     block,
 		RwsetList: rwSet,
 	}
-	go cb.MonitorCommit(blockInfo)
+
+	if err = cb.MonitorCommit(blockInfo); err != nil {
+		return 0, 0, 0, 0, 0, nil, err
+	}
 	otherLasts = utils.CurrentTimeMillisSeconds() - startOtherTick
+
 	return
 }
 
-func (cb *CommitBlock) MonitorCommit(bi *commonpb.BlockInfo) {
+func (cb *CommitBlock) MonitorCommit(bi *commonpb.BlockInfo) error {
 	if !localconf.ChainMakerConfig.MonitorConfig.Enabled {
-		return
+		return nil
 	}
 	raw, err := proto.Marshal(bi)
 	if err != nil {
 		cb.log.Errorw("marshal BlockInfo failed", "err", err)
-		return
+		return err
 	}
 	(*cb.metricBlockSize).WithLabelValues(bi.Block.Header.ChainId).Observe(float64(len(raw)))
 	(*cb.metricBlockCounter).WithLabelValues(bi.Block.Header.ChainId).Inc()
 	(*cb.metricTxCounter).WithLabelValues(bi.Block.Header.ChainId).Add(float64(bi.Block.Header.TxCount))
+	return nil
 }
 
 func NotifyChainConf(block *commonpb.Block, chainConf protocol.ChainConf) (err error) {
