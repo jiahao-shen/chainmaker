@@ -12,7 +12,7 @@ type GenerateQRLog struct {
 	GenerateTime   string `json:"generateTime"`   // 生码时间
 	ValidityPeriod string `json:"validityPeriod"` // 有效期
 	CityID         string `json:"cityID"`         // 城市平台标识
-	CityAPPID      string `json:"cityAppID"`      // 城市应用标识
+	APPID          string `json:"appID"`          // 城市应用标识
 	SceneID        string `json:"sceneID"`        // 场景标识
 }
 
@@ -21,18 +21,18 @@ type VerifyQRLog struct {
 	VerifierID                   string `json:"verifierID"`                   // 验码方身份标识
 	ComprehensiveCodeContentHash string `json:"comprehensiveCodeContentHash"` // 综合码内容哈希
 	CityID                       string `json:"cityID"`                       // 城市平台标识
-	CityAPPID                    string `json:"cityAppID"`                    // 城市应用标识
+	APPID                        string `json:"appID"`                        // 城市应用标识
 	VerifyTime                   string `json:"verifyTime"`                   // 验码时间
 	GeneratorID                  string `json:"generatorID"`                  // 生码方身份标识
 }
 
 // 用户授权记录
-type UserAuthorizeLog struct {
+type AuthorizeUserLog struct {
 	AuthorizerID     string `json:"authorizerID"`     // 授权人身份标识
 	AuthorizeeID     string `json:"authorizeeID"`     // 被授权人身份标识
 	AuthorizeTime    string `json:"authorizeTime"`    // 授权时间
 	AuthorizeContent string `json:"authorizeContent"` // 授权内容
-	GeneratorID      string `json:"generatorID"`      // 生码方身份标识
+	AuthorizeStatus  string `json:"authorizeStatus"`  // 授权状态
 }
 
 type VerifyUserIdentityLog struct {
@@ -52,4 +52,40 @@ type CancelAuthorizeLog struct {
 	AuthorizerID    string `json:"authorizerID"`    // 授权人身份标识
 	AuthorizeeID    string `json:"authorizeeID"`    // 被授权人身份标识
 	CanceledContent string `json:"canceledContent"` // 取消授权内容
+}
+
+type RegisterCityLog struct {
+	CityID       string `json:"cityID"`       // 城市平台标识
+	RegisterInfo string `json:"registerInfo"` // 城市平台登记信息
+	RegisterTime string `json:"registerTime"` // 注册时间
+}
+
+type ForbiddenCityLog struct {
+	CityID        string `json:"cityID"`        // 城市平台标识
+	ForbiddenTime string `json:"forbiddenTime"` // 禁用时间
+}
+
+type RegisterAPPLog struct {
+	APPID        string `json:"appID"`        // 城市应用标识
+	CityID       string `json:"cityID"`       // 城市平台标识
+	RegisterInfo string `json:"registerInfo"` // 应用登记信息
+	RegisterTime string `json:"registerTime"` // 注册时间
+}
+
+type ForbiddenAPPLog struct {
+	APPID         string `json:"cityID"`        // 城市应用标识
+	ForbiddenTime string `json:"forbiddenTime"` // 禁用时间
+}
+
+type RegisterServiceLog struct {
+	ServiceID    string `json:"serviceID"`    // 城市应用服务标识
+	CityID       string `json:"cityID"`       // 城市平台标识
+	APPID        string `json:"appID"`        // 城市应用标识
+	RegisterInfo string `json:"registerInfo"` // 城市应用服务登记信息
+	RegisterTime string `json:"registerTime"` // 注册时间
+}
+
+type ForbiddenServiceLog struct {
+	ServiceID     string `json:"serviceID"`     // 城市应用服务标识
+	ForbiddenTime string `json:"forbiddenTime"` // 禁用时间
 }
