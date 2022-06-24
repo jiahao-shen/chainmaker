@@ -40,7 +40,7 @@ func GenerateQR(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
-func VerifyQRLog(stub shim.CMStubInterface) protogo.Response {
+func VerifyQR(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
 	log := &model.VerifyQRLog{
@@ -181,7 +181,7 @@ func CancelAuthorize(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
-func RegisterCityLog(stub shim.CMStubInterface) protogo.Response {
+func RegisterCity(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
 	log := &model.RegisterCityLog{

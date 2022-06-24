@@ -32,6 +32,30 @@ func (f *FactContract) InvokeContract(stub shim.CMStubInterface) protogo.Respons
 		return api.SaveFile(stub)
 	case "queryFile":
 		return api.QueryFile(stub)
+	case "generateQR":
+		return api.GenerateQR(stub)
+	case "verifyQR":
+		return api.VerifyQR(stub)
+	case "authorizeUser":
+		return api.AuthorizeUser(stub)
+	case "verifyUserIdentity":
+		return api.VerifyUserIdentity(stub)
+	case "associateIdentity":
+		return api.AssociateIdentity(stub)
+	case "cancelAuthorize":
+		return api.CancelAuthorize(stub)
+	case "registerCity":
+		return api.RegisterCity(stub)
+	case "forbiddenCity":
+		return api.ForbiddenCity(stub)
+	case "registerAPP":
+		return api.RegisterAPP(stub)
+	case "forbiddenAPP":
+		return api.ForbiddenAPP(stub)
+	case "registerService":
+		return api.RegisterService(stub)
+	case "forbiddenService":
+		return api.ForbiddenService(stub)
 	default:
 		return shim.Error("invalid method")
 	}
