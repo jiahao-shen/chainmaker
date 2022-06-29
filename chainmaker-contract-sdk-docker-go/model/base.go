@@ -7,6 +7,7 @@ const (
 
 // 生码记录
 type GenerateQRLog struct {
+	SerialNumber   string `json:"serialNumber"`   // 流水号
 	GeneratorID    string `json:"generatorID"`    // 生码方身份标识
 	CTIDHash       string `json:"ctidHash"`       // 生码方网证哈希
 	GenerateTime   string `json:"generateTime"`   // 生码时间
@@ -18,16 +19,18 @@ type GenerateQRLog struct {
 
 // 验码记录
 type VerifyQRLog struct {
-	VerifierID                   string `json:"verifierID"`                   // 验码方身份标识
-	ComprehensiveCodeContentHash string `json:"comprehensiveCodeContentHash"` // 综合码内容哈希
-	CityID                       string `json:"cityID"`                       // 城市平台标识
-	APPID                        string `json:"appID"`                        // 城市应用标识
-	VerifyTime                   string `json:"verifyTime"`                   // 验码时间
-	GeneratorID                  string `json:"generatorID"`                  // 生码方身份标识
+	SerialNumber     string `json:"serialNumber"`     // 流水号
+	VerifierID       string `json:"verifierID"`       // 验码方身份标识
+	CCodeContentHash string `json:"cCodeContentHash"` // 综合码内容哈希
+	CityID           string `json:"cityID"`           // 城市平台标识
+	APPID            string `json:"appID"`            // 城市应用标识
+	VerifyTime       string `json:"verifyTime"`       // 验码时间
+	GeneratorID      string `json:"generatorID"`      // 生码方身份标识
 }
 
 // 用户授权记录
 type AuthorizeUserLog struct {
+	// TODO:
 	AuthorizerID     string `json:"authorizerID"`     // 授权人身份标识
 	AuthorizeeID     string `json:"authorizeeID"`     // 被授权人身份标识
 	AuthorizeTime    string `json:"authorizeTime"`    // 授权时间

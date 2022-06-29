@@ -7,19 +7,32 @@ import (
 	"chainmaker.org/chainmaker/chainmaker-contract-sdk-docker-go/model"
 	"chainmaker.org/chainmaker/chainmaker-contract-sdk-docker-go/pb/protogo"
 	"chainmaker.org/chainmaker/chainmaker-contract-sdk-docker-go/shim"
+	"chainmaker.org/chainmaker/chainmaker-contract-sdk-docker-go/utils"
 )
 
 func GenerateQR(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	serialNumber := string(params["serial_number"])
+	generatorID := string(params["generator_id"])
+	ctidHash := string(params["ctid_hash"])
+	generateTime := string(params["generate_time"])
+	validityPeriod := string(params["validity_period"])
+	cityID := string(params["city_id"])
+	appID := string(params["app_id"])
+	sceneID := string(params["scene_id"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.GenerateQRLog{
-		GeneratorID:    string(params["generator_id"]),
-		CTIDHash:       string(params["ctid_hash"]),
-		GenerateTime:   string(params["generate_time"]),
-		ValidityPeriod: string(params["validity_period"]),
-		CityID:         string(params["city_id"]),
-		APPID:          string(params["app_id"]),
-		SceneID:        string(params["scene_id"]),
+		SerialNumber:   serialNumber,
+		GeneratorID:    generatorID,
+		CTIDHash:       ctidHash,
+		GenerateTime:   generateTime,
+		ValidityPeriod: validityPeriod,
+		CityID:         cityID,
+		APPID:          appID,
+		SceneID:        sceneID,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -28,11 +41,11 @@ func GenerateQR(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{serialNumber, generatorID, ctidHash, generateTime, validityPeriod, cityID, appID, sceneID})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serialNumber}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -43,13 +56,24 @@ func GenerateQR(stub shim.CMStubInterface) protogo.Response {
 func VerifyQR(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	serialNumber := string(params["serial_number"])
+	verifierID := string(params["verifier_id"])
+	cCodeContentHash := string(params["c_code_content_hash"])
+	cityID := string(params["city_id"])
+	appID := string(params["app_id"])
+	verifyTime := string(params["verify_time"])
+	generatorID := string(params["generator_id"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.VerifyQRLog{
-		VerifierID:                   string(params["verifier_id"]),
-		ComprehensiveCodeContentHash: string(params["comprehensive_code_content_hash"]),
-		CityID:                       string(params["city_id"]),
-		APPID:                        string(params["app_id"]),
-		VerifyTime:                   string(params["verify_time"]),
-		GeneratorID:                  string(params["generator_id"]),
+		SerialNumber:     serialNumber,
+		VerifierID:       verifierID,
+		CCodeContentHash: cCodeContentHash,
+		CityID:           cityID,
+		APPID:            appID,
+		VerifyTime:       verifyTime,
+		GeneratorID:      generatorID,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -58,11 +82,11 @@ func VerifyQR(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{serialNumber, verifierID, cCodeContentHash, cityID, appID, verifyTime, generatorID})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serialNumber}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -70,15 +94,24 @@ func VerifyQR(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// TODO:
 func AuthorizeUser(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	authorizerID := string(params["authorizer_id"])
+	authorizeeID := string(params["authorizee_id"])
+	authorizeTime := string(params["authorize_time"])
+	authorizeContent := string(params["authorize_content"])
+	authorizeStatus := string(params["authorize_status"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.AuthorizeUserLog{
-		AuthorizerID:     string(params["authorizer_id"]),
-		AuthorizeeID:     string(params["authorizee_id"]),
-		AuthorizeTime:    string(params["authorize_time"]),
-		AuthorizeContent: string(params["authorize_content"]),
-		AuthorizeStatus:  string(params["authorize_status"]),
+		AuthorizerID:     authorizerID,
+		AuthorizeeID:     authorizeeID,
+		AuthorizeTime:    authorizeTime,
+		AuthorizeContent: authorizeContent,
+		AuthorizeStatus:  authorizeStatus,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -87,10 +120,10 @@ func AuthorizeUser(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
+	// 发送日志
 	stub.EmitEvent("topic_vx", []string{})
 
-	// TODO
+	// 写入账本
 	err = stub.PutStateByte(model.FileKey, "", logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))

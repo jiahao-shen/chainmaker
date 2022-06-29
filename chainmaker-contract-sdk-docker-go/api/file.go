@@ -57,11 +57,11 @@ func QueryFile(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("查询文件出错: %s", err))
 	}
 
-	// var file model.File
-	// err = json.Unmarshal(result, &file)
-	// if err != nil {
-	// 	return shim.Error(fmt.Sprintf("反序列化出错: %s", err))
-	// }
+	var file model.File
+	err = json.Unmarshal(result, &file)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("反序列化出错: %s", err))
+	}
 
 	return shim.Success(result)
 }
