@@ -47,7 +47,7 @@ func GenerateQR(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{serialNumber, generatorID, ctidHash, generateTime, validityPeriod, cityID, appID, sceneID})
+	stub.EmitEvent("GenerateQR", []string{serialNumber, generatorID, ctidHash, generateTime, validityPeriod, cityID, appID, sceneID})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serialNumber}), logByte)
@@ -89,7 +89,7 @@ func VerifyQR(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{serialNumber, verifierID, cCodeContentHash, cityID, appID, verifyTime, generatorID})
+	stub.EmitEvent("VerifyQR", []string{serialNumber, verifierID, cCodeContentHash, cityID, appID, verifyTime, generatorID})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serialNumber}), logByte)
@@ -128,7 +128,7 @@ func AuthorizeUser(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{authorizerID, authorizeeID, authorizeTime, authorizeContent, authorizeStatus})
+	stub.EmitEvent("AuthorizeUser", []string{authorizerID, authorizeeID, authorizeTime, authorizeContent, authorizeStatus})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, "", logByte)
@@ -164,7 +164,7 @@ func VerifyIdentity(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{nameHash, identityHash, telephoneHash, verifyStatus})
+	stub.EmitEvent("VerifyIdentity", []string{nameHash, identityHash, telephoneHash, verifyStatus})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{nameHash, identityHash, telephoneHash, verifyStatus}), logByte)
@@ -198,7 +198,7 @@ func AssociateIdentity(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{identityHash, digitalIdentity, pid})
+	stub.EmitEvent("AssociateIdentity", []string{identityHash, digitalIdentity, pid})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{digitalIdentity}), logByte)
@@ -233,7 +233,7 @@ func CancelAuthorize(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{authorizerID, authorizeeID, canceledContent})
+	stub.EmitEvent("CancelAuthorize", []string{authorizerID, authorizeeID, canceledContent})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, "", logByte)
@@ -267,7 +267,7 @@ func RegisterCity(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{cityID, registerInfo, registerTime})
+	stub.EmitEvent("RegisterCity", []string{cityID, registerInfo, registerTime})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{cityID}), logByte)
@@ -299,7 +299,7 @@ func ForbiddenCity(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{cityID, forbiddenTime})
+	stub.EmitEvent("ForbiddenCity", []string{cityID, forbiddenTime})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{cityID}), logByte)
@@ -335,7 +335,7 @@ func RegisterAPP(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{appID, cityID, registerInfo, registerTime})
+	stub.EmitEvent("RegisterAPP", []string{appID, cityID, registerInfo, registerTime})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{appID}), logByte)
@@ -367,7 +367,7 @@ func ForbiddenAPP(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{appID, forbiddenTime})
+	stub.EmitEvent("ForbiddenAPP", []string{appID, forbiddenTime})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{appID}), logByte)
@@ -405,7 +405,7 @@ func RegisterService(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{serviceID, cityID, appID, registerInfo, registerTime})
+	stub.EmitEvent("RegisterService", []string{serviceID, cityID, appID, registerInfo, registerTime})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serviceID}), logByte)
@@ -437,7 +437,7 @@ func ForbiddenService(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{serviceID, forbiddenTime})
+	stub.EmitEvent("ForbiddenService", []string{serviceID, forbiddenTime})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serviceID}), logByte)
