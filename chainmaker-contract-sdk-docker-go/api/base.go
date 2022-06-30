@@ -10,6 +10,11 @@ import (
 	"chainmaker.org/chainmaker/chainmaker-contract-sdk-docker-go/utils"
 )
 
+func Hello(stub shim.CMStubInterface) protogo.Response {
+	return shim.Success([]byte("Hello World"))
+}
+
+// 生码
 func GenerateQR(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
@@ -53,6 +58,7 @@ func GenerateQR(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// 验码
 func VerifyQR(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
@@ -95,6 +101,7 @@ func VerifyQR(stub shim.CMStubInterface) protogo.Response {
 }
 
 // TODO:
+// 授权用户
 func AuthorizeUser(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
@@ -121,7 +128,7 @@ func AuthorizeUser(stub shim.CMStubInterface) protogo.Response {
 	}
 
 	// 发送日志
-	stub.EmitEvent("topic_vx", []string{})
+	stub.EmitEvent("topic_vx", []string{authorizerID, authorizeeID, authorizeTime, authorizeContent, authorizeStatus})
 
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, "", logByte)
@@ -132,14 +139,22 @@ func AuthorizeUser(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
-func VerifyUserIdentity(stub shim.CMStubInterface) protogo.Response {
+// 验证身份
+func VerifyIdentity(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	nameHash := string(params["name_hash"])
+	identityHash := string(params["identity_hash"])
+	telephoneHash := string(params["telephone_hash"])
+	verifyStatus := string(params["verify_status"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.VerifyUserIdentityLog{
-		NameHash:         string(params["name_hash"]),
-		IdentityCardHash: string(params["identity_card_hash"]),
-		TelephoneHash:    string(params["telephone_hash"]),
-		VerifyStatus:     string(params["verify_status"]),
+		NameHash:      nameHash,
+		IdentityHash:  identityHash,
+		TelephoneHash: telephoneHash,
+		VerifyStatus:  verifyStatus,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -148,11 +163,11 @@ func VerifyUserIdentity(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{nameHash, identityHash, telephoneHash, verifyStatus})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{nameHash, identityHash, telephoneHash, verifyStatus}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -160,13 +175,20 @@ func VerifyUserIdentity(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// 关联身份
 func AssociateIdentity(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	identityHash := string(params["identity_hash"])
+	digitalIdentity := string(params["digital_identity"])
+	pid := string(params["pid"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.AssociateIdentityLog{
-		IdentityCardHash: string(params["identity_card_hash"]),
-		UserID:           string(params["user_id"]),
-		PID:              string(params["pid"]),
+		IdentityHash:    identityHash,
+		DigitalIdentity: digitalIdentity,
+		PID:             pid,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -175,11 +197,11 @@ func AssociateIdentity(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{identityHash, digitalIdentity, pid})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{digitalIdentity}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -187,13 +209,21 @@ func AssociateIdentity(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// TODO:
+// 取消授权
 func CancelAuthorize(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	authorizerID := string(params["authorizer_id"])
+	authorizeeID := string(params["authorizee_id"])
+	canceledContent := string(params["canceled_content"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.CancelAuthorizeLog{
-		AuthorizerID:    string(params["authorizer_id"]),
-		AuthorizeeID:    string(params["authorizee_id"]),
-		CanceledContent: string(params["canceled_content"]),
+		AuthorizerID:    authorizerID,
+		AuthorizeeID:    authorizeeID,
+		CanceledContent: canceledContent,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -202,10 +232,10 @@ func CancelAuthorize(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{authorizerID, authorizeeID, canceledContent})
 
-	// TODO
+	// 写入账本
 	err = stub.PutStateByte(model.FileKey, "", logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
@@ -214,13 +244,20 @@ func CancelAuthorize(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// 注册城市
 func RegisterCity(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	cityID := string(params["city_id"])
+	registerInfo := string(params["register_info"])
+	registerTime := string(params["register_time"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.RegisterCityLog{
-		CityID:       string(params["city_id"]),
-		RegisterInfo: string(params["register_info"]),
-		RegisterTime: string(params["register_time"]),
+		CityID:       cityID,
+		RegisterInfo: registerInfo,
+		RegisterTime: registerTime,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -229,11 +266,11 @@ func RegisterCity(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{cityID, registerInfo, registerTime})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{cityID}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -241,12 +278,18 @@ func RegisterCity(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// 禁用城市
 func ForbiddenCity(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	cityID := string(params["city_id"])
+	forbiddenTime := string(params["forbidden_time"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.ForbiddenCityLog{
-		CityID:        string(params["city_id"]),
-		ForbiddenTime: string(params["forbidden_time"]),
+		CityID:        cityID,
+		ForbiddenTime: forbiddenTime,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -255,11 +298,11 @@ func ForbiddenCity(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{cityID, forbiddenTime})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{cityID}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -267,14 +310,22 @@ func ForbiddenCity(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// 注册城市应用
 func RegisterAPP(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	appID := string(params["app_id"])
+	cityID := string(params["city_id"])
+	registerInfo := string(params["register_info"])
+	registerTime := string(params["register_time"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.RegisterAPPLog{
-		APPID:        string(params["app_id"]),
-		CityID:       string(params["city_id"]),
-		RegisterInfo: string(params["register_info"]),
-		RegisterTime: string(params["register_time"]),
+		APPID:        appID,
+		CityID:       cityID,
+		RegisterInfo: registerInfo,
+		RegisterTime: registerTime,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -283,11 +334,11 @@ func RegisterAPP(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{appID, cityID, registerInfo, registerTime})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{appID}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -295,12 +346,18 @@ func RegisterAPP(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// 禁用城市应用
 func ForbiddenAPP(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	appID := string(params["app_id"])
+	forbiddenTime := string(params["forbidden_time"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.ForbiddenAPPLog{
-		APPID:         string(params["app_id"]),
-		ForbiddenTime: string(params["forbidden_time"]),
+		APPID:         appID,
+		ForbiddenTime: forbiddenTime,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -309,11 +366,11 @@ func ForbiddenAPP(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{appID, forbiddenTime})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{appID}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -321,15 +378,24 @@ func ForbiddenAPP(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// 注册服务
 func RegisterService(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	serviceID := string(params["service_id"])
+	cityID := string(params["city_id"])
+	appID := string(params["app_id"])
+	registerInfo := string(params["register_info"])
+	registerTime := string(params["register_time"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.RegisterServiceLog{
-		ServiceID:    string(params["service_id"]),
-		CityID:       string(params["city_id"]),
-		APPID:        string(params["app_id"]),
-		RegisterInfo: string(params["register_info"]),
-		RegisterTime: string(params["register_time"]),
+		ServiceID:    serviceID,
+		CityID:       cityID,
+		APPID:        appID,
+		RegisterInfo: registerInfo,
+		RegisterTime: registerTime,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -338,11 +404,11 @@ func RegisterService(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{serviceID, cityID, appID, registerInfo, registerTime})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serviceID}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -350,12 +416,18 @@ func RegisterService(stub shim.CMStubInterface) protogo.Response {
 	return shim.Success(logByte)
 }
 
+// 禁用服务
 func ForbiddenService(stub shim.CMStubInterface) protogo.Response {
 	params := stub.GetArgs()
 
+	serviceID := string(params["service_id"])
+	forbiddenTime := string(params["forbidden_time"])
+
+	// TODO: 数据逻辑处理
+
 	log := &model.ForbiddenServiceLog{
-		ServiceID:     string(params["service_id"]),
-		ForbiddenTime: string(params["forbidden_time"]),
+		ServiceID:     serviceID,
+		ForbiddenTime: forbiddenTime,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -364,11 +436,11 @@ func ForbiddenService(stub shim.CMStubInterface) protogo.Response {
 		return shim.Error(fmt.Sprintf("序列化出错: %s", err))
 	}
 
-	// TODOO
-	stub.EmitEvent("topic_vx", []string{})
+	// 发送日志
+	stub.EmitEvent("topic_vx", []string{serviceID, forbiddenTime})
 
-	// TODO
-	err = stub.PutStateByte(model.FileKey, "", logByte)
+	// 写入账本
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serviceID}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}

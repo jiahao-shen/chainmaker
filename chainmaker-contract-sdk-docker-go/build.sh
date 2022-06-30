@@ -12,4 +12,4 @@ echo "please input zip file: "
 read zip_file
 go build -o $contract_name
 7z a $zip_file $contract_name
-mv $zip_file.7z $DIR
+# mv $zip_file.7z $DIR

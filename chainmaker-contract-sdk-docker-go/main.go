@@ -28,6 +28,8 @@ func (f *FactContract) InvokeContract(stub shim.CMStubInterface) protogo.Respons
 	method := string(stub.GetArgs()["method"])
 
 	switch method {
+	case "hello":
+		return api.Hello(stub)
 	case "saveFile":
 		return api.SaveFile(stub)
 	case "queryFile":
@@ -38,8 +40,8 @@ func (f *FactContract) InvokeContract(stub shim.CMStubInterface) protogo.Respons
 		return api.VerifyQR(stub)
 	case "authorizeUser":
 		return api.AuthorizeUser(stub)
-	case "verifyUserIdentity":
-		return api.VerifyUserIdentity(stub)
+	case "verifyIdentity":
+		return api.VerifyIdentity(stub)
 	case "associateIdentity":
 		return api.AssociateIdentity(stub)
 	case "cancelAuthorize":

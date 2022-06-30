@@ -39,16 +39,16 @@ type AuthorizeUserLog struct {
 }
 
 type VerifyUserIdentityLog struct {
-	NameHash         string `json:"nameHash"`         // 姓名哈希
-	IdentityCardHash string `json:"identityCardHash"` // 身份证号哈希
-	TelephoneHash    string `json:"telephoneHash"`    // 手机号Hash
-	VerifyStatus     string `json:"verifyStatus"`     // 核验状态
+	NameHash      string `json:"nameHash"`      // 姓名哈希
+	IdentityHash  string `json:"identityHash"`  // 身份证号哈希
+	TelephoneHash string `json:"telephoneHash"` // 手机号Hash
+	VerifyStatus  string `json:"verifyStatus"`  // 核验状态
 }
 
 type AssociateIdentityLog struct {
-	IdentityCardHash string `json:"identityCardHash"` // 身份证号哈希
-	UserID           string `json:"userID"`           // 用户数字身份
-	PID              string `json:"pid"`              // 平台标识符
+	IdentityHash    string `json:"identityHash"`    // 身份证号哈希
+	DigitalIdentity string `json:"digitalIdentity"` // 用户数字身份
+	PID             string `json:"pid"`             // 平台标识符
 }
 
 type CancelAuthorizeLog struct {
