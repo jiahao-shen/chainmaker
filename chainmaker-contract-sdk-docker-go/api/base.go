@@ -50,7 +50,7 @@ func GenerateQR(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("GenerateQR", []string{serialNumber, generatorID, ctidHash, generateTime, validityPeriod, cityID, appID, sceneID})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serialNumber}), logByte)
+	err = stub.PutStateByte(model.FileKey, serialNumber, logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -92,7 +92,7 @@ func VerifyQR(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("VerifyQR", []string{serialNumber, verifierID, cCodeContentHash, cityID, appID, verifyTime, generatorID})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serialNumber}), logByte)
+	err = stub.PutStateByte(model.FileKey, serialNumber, logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -147,6 +147,7 @@ func VerifyIdentity(stub shim.CMStubInterface) protogo.Response {
 	identityHash := string(params["identity_hash"])
 	telephoneHash := string(params["telephone_hash"])
 	verifyStatus := string(params["verify_status"])
+	verifyTime := string(params["verify_time"])
 
 	// TODO: 数据逻辑处理
 
@@ -155,6 +156,7 @@ func VerifyIdentity(stub shim.CMStubInterface) protogo.Response {
 		IdentityHash:  identityHash,
 		TelephoneHash: telephoneHash,
 		VerifyStatus:  verifyStatus,
+		VerifyTime:    verifyTime,
 	}
 
 	logByte, err := json.Marshal(log)
@@ -167,7 +169,7 @@ func VerifyIdentity(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("VerifyIdentity", []string{nameHash, identityHash, telephoneHash, verifyStatus})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{nameHash, identityHash, telephoneHash, verifyStatus}), logByte)
+	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{nameHash, identityHash, telephoneHash, verifyStatus, verifyTime}), logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -201,7 +203,7 @@ func AssociateIdentity(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("AssociateIdentity", []string{identityHash, digitalIdentity, pid})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{digitalIdentity}), logByte)
+	err = stub.PutStateByte(model.FileKey, digitalIdentity, logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -270,7 +272,7 @@ func RegisterCity(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("RegisterCity", []string{cityID, registerInfo, registerTime})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{cityID}), logByte)
+	err = stub.PutStateByte(model.FileKey, cityID, logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -302,7 +304,7 @@ func ForbiddenCity(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("ForbiddenCity", []string{cityID, forbiddenTime})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{cityID}), logByte)
+	err = stub.PutStateByte(model.FileKey, cityID, logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -338,7 +340,7 @@ func RegisterAPP(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("RegisterAPP", []string{appID, cityID, registerInfo, registerTime})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{appID}), logByte)
+	err = stub.PutStateByte(model.FileKey, appID, logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -370,7 +372,7 @@ func ForbiddenAPP(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("ForbiddenAPP", []string{appID, forbiddenTime})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{appID}), logByte)
+	err = stub.PutStateByte(model.FileKey, appID, logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -408,7 +410,7 @@ func RegisterService(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("RegisterService", []string{serviceID, cityID, appID, registerInfo, registerTime})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serviceID}), logByte)
+	err = stub.PutStateByte(model.FileKey, serviceID, logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}
@@ -440,7 +442,7 @@ func ForbiddenService(stub shim.CMStubInterface) protogo.Response {
 	stub.EmitEvent("ForbiddenService", []string{serviceID, forbiddenTime})
 
 	// 写入账本
-	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{serviceID}), logByte)
+	err = stub.PutStateByte(model.FileKey, serviceID, logByte)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
 	}

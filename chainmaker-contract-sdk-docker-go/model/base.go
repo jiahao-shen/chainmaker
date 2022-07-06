@@ -41,8 +41,9 @@ type AuthorizeUserLog struct {
 type VerifyUserIdentityLog struct {
 	NameHash      string `json:"nameHash"`      // 姓名哈希
 	IdentityHash  string `json:"identityHash"`  // 身份证号哈希
-	TelephoneHash string `json:"telephoneHash"` // 手机号Hash
+	TelephoneHash string `json:"telephoneHash"` // 手机号哈希
 	VerifyStatus  string `json:"verifyStatus"`  // 核验状态
+	VerifyTime    string `json:"verifyTime"`    // 核验时间
 }
 
 type AssociateIdentityLog struct {
