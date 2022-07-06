@@ -52,7 +52,7 @@ func GenerateQR(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, serialNumber, logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -94,7 +94,7 @@ func VerifyQR(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, serialNumber, logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -133,7 +133,7 @@ func AuthorizeUser(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, "", logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -171,7 +171,7 @@ func VerifyIdentity(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, utils.GetSHA256String([]string{nameHash, identityHash, telephoneHash, verifyStatus, verifyTime}), logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -205,7 +205,7 @@ func AssociateIdentity(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, digitalIdentity, logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -240,7 +240,7 @@ func CancelAuthorize(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, "", logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -274,7 +274,7 @@ func RegisterCity(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, cityID, logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -306,7 +306,7 @@ func ForbiddenCity(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, cityID, logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -342,7 +342,7 @@ func RegisterAPP(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, appID, logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -374,7 +374,7 @@ func ForbiddenAPP(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, appID, logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -412,7 +412,7 @@ func RegisterService(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, serviceID, logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
@@ -444,7 +444,7 @@ func ForbiddenService(stub shim.CMStubInterface) protogo.Response {
 	// 写入账本
 	err = stub.PutStateByte(model.FileKey, serviceID, logByte)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("保存文件出错: %s", err))
+		return shim.Error(fmt.Sprintf("写入账本出错: %s", err))
 	}
 
 	return shim.Success(logByte)
