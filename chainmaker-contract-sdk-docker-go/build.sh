@@ -10,5 +10,10 @@ echo "please input zip file: "
 read zip_file
 go build -o $contract_name
 7z a $zip_file $contract_name
+
+if [ ! -d "target" ]; then
+  mkdir target
+fi
+
 mv $zip_file.7z "target/"
 mv $contract_name "target/"
