@@ -33,7 +33,7 @@
 1. `cd ${WORKDIR}/chainmaker-go/tools/cmc`
 2. `go build`
 
-### 合约创建:
+### 合约创建
 ```
 ./cmc client contract user create \
 --contract-name=contract_fact \
